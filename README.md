@@ -10,6 +10,55 @@ look (see [Optional: Bomberman LIVE](#optional-bomberman-live)).
 
 ---
 
+## Features
+
+This port does more than run the game natively. It adds features the PS3 release never had.
+The switches named below are in `user\settings\settings.ini`.
+
+**Sharper picture**
+- Renders at up to 4x the PS3's 1280x720 (5120x2880). By default it picks a scale to suit your
+  display (`render_scale`).
+- Moves the match status bar up so it no longer covers the top of the arena (`hud_raise`).
+- Full screen on / off with F11 or Alt+Enter.
+
+**Player profiles**
+- Named profiles keep each person's costume and stats, and follow them to whichever controller
+  they use. Controllers remember their profile.
+- Open the profile menu any time with the PS / Guide button or F1. A controller joining at Player
+  Select is asked who is playing.
+- Profile names appear on Player Select, on Game Results and on the WINNER banner.
+- Take over a profile from another controller. Profiles are locked during a match, and a
+  disconnected controller frees its profile.
+
+**Smarter CPU players** (`cpu_ai = smart`, the default; still being tuned)
+- Bots play through a virtual controller, with the same rules and power-ups as a person.
+- They plan ahead: they escape blasts, chain reactions included, bomb blocks and players from
+  spots they can get out of, use remote bombs and collect power-ups.
+- Easy, Normal and Hard change how far they see and how quickly and boldly they act. They also
+  make human mistakes, such as reacting late or misjudging a fuse.
+- Set `cpu_ai = original` for the game's own CPU players.
+
+**More from the game**
+- Custom Arenas, restored from the Xbox 360 version: save up to 3 setups of arena, rules and
+  power-ups, then pick them at Arena Select.
+- Costume pickups no longer get skipped when their spot is covered by a block
+  (`aggressive_costume_spawns`).
+- An optional Bomberman LIVE look, using your own Xbox 360 copy: its logo, title screen, voice,
+  A/B/X/Y prompts and wording (`presentation`).
+
+**Convenience**
+- Xbox, PlayStation and other SDL-supported controllers, or the keyboard (`keyboard`).
+- Quit from a controller: hold L2 + R2 + Select + Start for 1 second, then confirm (`exit_combo`).
+- No "not connected to PSN" popup on Player Select.
+- Saves, settings and trophies are plain files in `user\`, so they are easy to back up or reset.
+- Trophies unlock for the person who earned them, with a notice in the game and a page in the
+  profile menu.
+
+**Not included:** online play. The game's PSN features are switched off, so this is local
+multiplayer only.
+
+---
+
 ## What you need
 
 **To play**
