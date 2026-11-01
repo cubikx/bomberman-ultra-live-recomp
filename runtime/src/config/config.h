@@ -27,7 +27,7 @@ enum class CpuAi {
 struct Settings {
 	Presentation presentation = Presentation::Ultra;
 	bool aggressive_costume_spawns = true;   // retry the costume (wardrobe) pickup until its tile is free
-	uint32_t render_scale = 0;   // multiple of the game's 1280x720 to render at; 0 = auto (from the display)
+	uint32_t render_scale = 1;   // multiple of the game's 1280x720 to render at; 0 = auto (from the display)
 	CpuAi cpu_ai = CpuAi::Smart;
 	uint32_t hud_raise = 36;     // pixels (of 720) to move the match status bar up; 0 = original
 	KeyboardMode keyboard = KeyboardMode::Auto;

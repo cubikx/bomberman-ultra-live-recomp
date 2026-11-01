@@ -16,8 +16,8 @@ This port does more than run the game natively. It adds features the PS3 release
 The switches named below are in `user\settings\settings.ini`.
 
 **Sharper picture**
-- Renders at up to 4x the PS3's 1280x720 (5120x2880). By default it picks a scale to suit your
-  display (`render_scale`).
+- Renders at up to 4x the PS3's 1280x720 (5120x2880). The default is the PS3's own resolution; raise
+  it with `render_scale`, or set it to `auto` to pick a scale to suit your display.
 - Moves the match status bar up so it no longer covers the top of the arena (`hud_raise`).
 - Full screen on / off with F11 or Alt+Enter.
 
@@ -32,8 +32,8 @@ The switches named below are in `user\settings\settings.ini`.
 
 **Smarter CPU players** (`cpu_ai = smart`, the default; still being tuned)
 - More realistic / human-like play. CPU players no longer bumble around aimlessly.
-- Easy, Normal and Hard change adjusts their awareness and aggression. They will make mistakes 
-  based on their difficulty level as well.
+- Easy, Normal and Hard adjusts their awareness and aggression. They will make mistakes based on 
+  their difficulty level as well.
 - Don't like it? Set `cpu_ai = original` for the game's original CPU players.
 
 **Xbox 360 Features**
@@ -206,10 +206,9 @@ Deleting any one of these folders resets just that part; the game starts cleanly
 **Updating:** to get a newer version of this project, run `git pull`, then repeat Step 3 and
 Step 4.
 
-**Sharper picture:** the game renders at a multiple of the PS3's 1280x720, chosen to suit your
-display (`render_scale = auto` in `settings.ini`). Set `render_scale` to `1`
-to `4` to choose it yourself; `1` is the PS3 look, higher is sharper and needs a faster
-graphics card. Restart the game after changing it.
+**Sharper picture:** the game renders at a multiple of the PS3's 1280x720, set by `render_scale`
+in `settings.ini`. The default, `1`, is the PS3 look. `2` to `4` are sharper and need a faster
+graphics card; `auto` picks a scale to suit your display. Restart the game after changing it.
 
 **Costume pickups:** the wardrobe icon (it unlocks a costume piece) appears about a minute
 into local matches of 2 minutes or more. The original game skips it whenever its spot is
@@ -346,7 +345,7 @@ exe, `game\` and `live\`, and leaves any `user\` there alone (the default folder
   `media: presentation = live, but ... has no files` in this case.
 - **`make_live.py` says "vgmstream-cli not found"**: do [Step B](#step-b-get-vgmstream-for-the-voice),
   or add `--no-voice`.
-- **Slow or stuttering on an older graphics card**: set `render_scale = 1` in
+- **Slow or stuttering on an older graphics card**: make sure `render_scale` is `1` in
   `user\settings\settings.ini`.
 - **Settings got messed up**: delete `user\settings\settings.ini`; it is recreated with the
   defaults on the next start.

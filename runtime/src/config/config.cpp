@@ -52,13 +52,13 @@ aggressive_costume_spawns = on
 cpu_ai = smart
 )"},
 	{"render_scale", R"(# Render resolution, as a multiple of the game's own 1280x720:
-#   auto - enough for the largest connected display (default; 1080p and 1440p: 2, 4K: 3)
-#   1    - 1280x720, as on the PS3
+#   auto - enough for the largest connected display (1080p and 1440p: 2, 4K: 3)
+#   1    - 1280x720, as on the PS3 (default)
 #   2    - 2560x1440
 #   3    - 3840x2160
 #   4    - 5120x2880
 # Higher is sharper when the window is large, and needs a faster graphics card.
-render_scale = auto
+render_scale = 1
 )"},
 	{"hud_raise", R"(# Match status bar (player heads, wins, clock) at the top of the screen. In the
 # original game it covers the top edge of the arena; this moves it up by that many
