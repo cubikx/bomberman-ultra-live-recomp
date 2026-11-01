@@ -1,15 +1,7 @@
 # Changelog
 
-Changes that matter to people building or playing the port, newest first. Each commit updates
-this file under **Unreleased**; the entries move under a version or date when a release is made.
-
-## Unreleased
-
-### Changed
-- `render_scale` now defaults to `1` (1280x720, the PS3's resolution) on every display, so handhelds
-  and older graphics cards aren't asked to render far more pixels than they show. `auto` and `2` to
-  `4` are still available in `settings.ini`. A settings file that already has `render_scale` keeps
-  its value; one without it gets `1`.
+Changes that matter to people building or playing the port, newest first, grouped by the date they
+were committed.
 
 ## 2026-11-01
 
@@ -18,6 +10,10 @@ this file under **Unreleased**; the entries move under a version or date when a 
 - README: a Features section, and the project's Bomberman ULTRA LIVE! name.
 
 ### Changed
+- `render_scale` now defaults to `1` (1280x720, the PS3's resolution) on every display, so handhelds
+  and older graphics cards aren't asked to render far more pixels than they show. `auto` and `2` to
+  `4` are still available in `settings.ini`. A settings file that already has `render_scale` keeps
+  its value; one without it gets `1`.
 - README: new setup steps with winget and PowerShell commands, measured timings, how to update,
   `deploy.cmd` and more troubleshooting.
 
