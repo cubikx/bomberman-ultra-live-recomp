@@ -1,0 +1,31 @@
+# Game data and anything derived from it stays local: never commit it.
+NPUB30051/
+game/generated/
+user/
+
+# build output
+build/
+build_log.txt
+
+# debug output from runs
+run_*.txt
+frame_*.bmp
+frame_*.png
+analysis/eboot.json
+analysis/eboot.txt
+
+# private working notes
+analysis/SCOPE.md
+
+# reference checkouts
+tools/ref/
+
+__pycache__/
+
+# Bomberman LIVE files made from the 360 copy by tools/media/make_live.py
+live/
+# the user's Xbox 360 files (input to tools/media/make_live.py)
+xbox360/
+
+# old debug output and test leftovers
+scratch/
