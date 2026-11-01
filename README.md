@@ -1,6 +1,6 @@
-# Bomberman ULTRA for Windows
+# Bomberman ULTRA LIVE! recomp for Windows
 
-A native Windows port of **Bomberman ULTRA** (PS3, PlayStation Network release `NPUB30051`,
+**Bomberman ULTRA LIVE!** is a native Windows port of *Bomberman ULTRA* (PS3, PlayStation Network release `NPUB30051`,
 version 01.04). The PS3 game code is recompiled to C++ and runs with its own graphics
 (Vulkan), audio, input and save system. No emulator is involved.
 
@@ -25,28 +25,26 @@ The switches named below are in `user\settings\settings.ini`.
 - Named profiles keep each person's costume and stats, and follow them to whichever controller
   they use. Controllers remember their profile.
 - Open the profile menu any time with the PS / Guide button or F1. A controller joining at Player
-  Select is asked who is playing.
-- Profile names appear on Player Select, on Game Results and on the WINNER banner.
-- Take over a profile from another controller. Profiles are locked during a match, and a
-  disconnected controller frees its profile.
+  Select is prompted to select/create a profile.
+- Profile select screen allows players to 'grab' profile from another controller before the match 
+  begins.
+- Profiles are locked during a match, and a disconnected controller frees its profile.
 
 **Smarter CPU players** (`cpu_ai = smart`, the default; still being tuned)
-- Bots play through a virtual controller, with the same rules and power-ups as a person.
-- They plan ahead: they escape blasts, chain reactions included, bomb blocks and players from
-  spots they can get out of, use remote bombs and collect power-ups.
-- Easy, Normal and Hard change how far they see and how quickly and boldly they act. They also
-  make human mistakes, such as reacting late or misjudging a fuse.
-- Set `cpu_ai = original` for the game's own CPU players.
+- More realistic / human-like play. CPU players no longer bumble around aimlessly.
+- Easy, Normal and Hard change adjusts their awareness and aggression. They will make mistakes 
+  based on their difficulty level as well.
+- Don't like it? Set `cpu_ai = original` for the game's original CPU players.
 
-**More from the game**
+**Xbox 360 Features**
 - Custom Arenas, restored from the Xbox 360 version: save up to 3 setups of arena, rules and
   power-ups, then pick them at Arena Select.
+- An optional Bomberman LIVE look, using your own Xbox 360 copy: its logo, title screen, voice,
+  A/B/X/Y prompts and wording (`presentation`). (Requires XBOX 360 game files)
+
+**Additional Features**
 - Costume pickups no longer get skipped when their spot is covered by a block
   (`aggressive_costume_spawns`).
-- An optional Bomberman LIVE look, using your own Xbox 360 copy: its logo, title screen, voice,
-  A/B/X/Y prompts and wording (`presentation`).
-
-**Convenience**
 - Xbox, PlayStation and other SDL-supported controllers, or the keyboard (`keyboard`).
 - Quit from a controller: hold L2 + R2 + Select + Start for 1 second, then confirm (`exit_combo`).
 - No "not connected to PSN" popup on Player Select.
@@ -54,8 +52,8 @@ The switches named below are in `user\settings\settings.ini`.
 - Trophies unlock for the person who earned them, with a notice in the game and a page in the
   profile menu.
 
-**Not included:** online play. The game's PSN features are switched off, so this is local
-multiplayer only.
+**Not yet implemented:** 
+- Online play. The game's PSN features are switched off, so this is currently local multiplayer only.
 
 ---
 
