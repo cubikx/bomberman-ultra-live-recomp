@@ -17,24 +17,69 @@ look (see [Optional: Bomberman LIVE](#optional-bomberman-live)).
 - A graphics card with Vulkan support (any NVIDIA / AMD / Intel GPU from the last ~10 years)
 - A controller (Xbox, PlayStation or other SDL-supported pad) or the keyboard
 
-**To build** (install these once)
+**To build** (all free; install these once)
 - [Visual Studio 2022 Build Tools](https://visualstudio.microsoft.com/downloads/) with the
   **Desktop development with C++** workload
 - [LLVM](https://github.com/llvm/llvm-project/releases) (provides `clang-cl`; the code needs clang)
-- [CMake](https://cmake.org/download/) 3.24 or newer
+- [CMake](https://cmake.org/download/) 3.24 or newer (on `PATH`)
 - [Ninja](https://github.com/ninja-build/ninja/releases) (on `PATH`)
 - [Python](https://www.python.org/downloads/) 3.10 or newer (on `PATH` as `python`)
-- [Git](https://git-scm.com/download/win) (CMake downloads SDL3, Vulkan headers, Dear ImGui and stb)
+- [Git](https://git-scm.com/download/win) (on `PATH`)
 
-The build needs an internet connection the first time, for those downloads.
+To install them all from PowerShell, run these one at a time:
+
+```powershell
+winget install --id Microsoft.VisualStudio.2022.BuildTools -e --override "--passive --wait --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended"
+```
+
+```powershell
+winget install --id LLVM.LLVM -e
+```
+
+```powershell
+winget install --id Kitware.CMake -e
+```
+
+```powershell
+winget install --id Ninja-build.Ninja -e
+```
+
+```powershell
+winget install --id Python.Python.3.13 -e
+```
+
+```powershell
+winget install --id Git.Git -e
+```
+
+Then open a **new** PowerShell window, so it sees the new tools, and check that each of these
+prints a version:
+
+```powershell
+cmake --version; ninja --version; python --version; git --version
+```
+
+The build needs an internet connection the first time: CMake downloads SDL3, the Vulkan headers,
+volk, glslang, Dear ImGui and stb.
 
 ---
 
 ## Setting up for the first time
 
-All paths below are relative to this project folder (the one containing `build.cmd`).
+Run the commands in PowerShell. After Step 1, all paths are relative to this project folder
+(the one containing `build.cmd`), and your terminal should be in that folder.
 
-### Step 1: Put the PS3 game files in `NPUB30051\`
+### Step 1: Get this project
+
+```powershell
+git clone https://github.com/cubikx/bomberman-ultra-live-recomp.git
+```
+
+```powershell
+cd bomberman-ultra-live-recomp
+```
+
+### Step 2: Put the PS3 game files in `NPUB30051\`
 
 1. Take the game's `NPUB30051` folder from your PS3 (or from your installed PSN copy). If you
    have it as a `.zip` / `.7z`, **extract it**. The game cannot read it from an archive.
@@ -58,31 +103,33 @@ All paths below are relative to this project folder (the one containing `build.c
 
    When done, `NPUB30051\USRDIR\EBOOT.elf` must exist. The game must be **version 01.04**.
 
-### Step 2: Recompile the game code
+### Step 3: Recompile the game code
 
-Open a terminal in this project folder and run these three commands (a few minutes in total):
+Run these three commands (under a minute in total):
 
-```bash
+```powershell
 python -I recomp/recompile.py NPUB30051/USRDIR/EBOOT.elf game/generated
 ```
 
-```bash
+```powershell
 python -I recomp/spu_recompile.py NPUB30051/USRDIR/EBOOT.elf 0x1A1F00 42240 0x1000 0x1010 job_1a1f00 game/generated/spu
 ```
 
-```bash
+```powershell
 python -I recomp/spu_recompile.py NPUB30051/USRDIR/EBOOT.elf 0x18D280 0x14370 0x3000 0x3080 multistream game/generated/spu
 ```
 
-This writes C++ files to `game\generated\`. Only re-run them if the recompiler changes.
+This writes C++ files to `game\generated\`. These files come from your copy of the game, so
+they stay on your PC. Only re-run the commands if the recompiler changes.
 
-### Step 3: Build
+### Step 4: Build
 
-```bash
+```powershell
 cmd /c ".\build.cmd Release"
 ```
 
-The game ends up in `build\clang-Release\bomberman.exe`. The build also links, in that folder:
+This takes about 4 minutes on a 16-thread CPU, and longer on slower ones. The game ends up in
+`build\clang-Release\bomberman.exe`. The build also links, in that folder:
 
 | In `build\clang-Release\` | Points to | Holds |
 |---|---|---|
@@ -90,10 +137,10 @@ The game ends up in `build\clang-Release\bomberman.exe`. The build also links, i
 | `user\` | `user\` | your settings, saves, trophies (created on first start) |
 | `live\` | `live\` | the optional Bomberman LIVE files |
 
-### Step 4: Play
+### Step 5: Play
 
-```bash
-build\clang-Release\bomberman.exe
+```powershell
+.\build\clang-Release\bomberman.exe
 ```
 
 On the first start the game creates `user\`:
@@ -101,12 +148,16 @@ On the first start the game creates `user\`:
 ```
 user\
   settings\settings.ini   all options, with explanations (edit with any text editor)
+  profiles\               player profiles
   saves\                  save data
   trophies\               unlocked trophies
   cache\                  files the game rebuilds by itself (safe to delete)
 ```
 
 Deleting any one of these folders resets just that part; the game starts cleanly without it.
+
+**Updating:** to get a newer version of this project, run `git pull`, then repeat Step 3 and
+Step 4.
 
 **Sharper picture:** the game renders at a multiple of the PS3's 1280x720, chosen to suit your
 display (`render_scale = auto` in `settings.ini`). Set `render_scale` to `1`
@@ -184,7 +235,7 @@ decodes it. Download `vgmstream-win64.zip` and extract it to `tools\ref\vgmstrea
 
 ### Step C: Make the Bomberman LIVE files
 
-```bash
+```powershell
 python -I tools/media/make_live.py
 ```
 
@@ -225,7 +276,9 @@ bomberman\
 ```
 
 Copy real folders, not the links from the build folder. After a new build, copying
-`bomberman.exe` again is enough. Other locations can be given with `--game <folder>`,
+`bomberman.exe` again is enough. `.\deploy.cmd Release <folder>` does this for you: it copies the
+exe, `game\` and `live\`, and leaves any `user\` there alone (the default folder is
+`..\bomberman`). Other locations can be given with `--game <folder>`,
 `--user <folder>` and `--live <folder>`.
 
 ---
@@ -233,8 +286,12 @@ Copy real folders, not the links from the build folder. After a new build, copyi
 ## Troubleshooting
 
 - **"Game files not found"**: `game\USRDIR\EBOOT.elf` is missing next to the exe (or
-  `NPUB30051\USRDIR\EBOOT.elf` in this project). See [Step 1](#step-1-put-the-ps3-game-files-in-npub30051).
-- **Build stops with "Run the recompiler first"**: do [Step 2](#step-2-recompile-the-game-code).
+  `NPUB30051\USRDIR\EBOOT.elf` in this project). See [Step 2](#step-2-put-the-ps3-game-files-in-npub30051).
+- **`recompile.py` says "unknown system functions"**: your `EBOOT.elf` is not version 01.04 of the game.
+- **Build stops with "Run the recompiler first"**: do [Step 3](#step-3-recompile-the-game-code).
+- **`cmake` is "not recognized" after installing it**: open a new PowerShell window. If it is still
+  not found, run the installer from [cmake.org](https://cmake.org/download/) and choose to add CMake
+  to the system `PATH`.
 - **Build stops with "Build with clang / clang-cl"**: install LLVM; `build.cmd` looks for
   `clang-cl` on `PATH` and in `C:\Program Files\LLVM\bin`.
 - **Still Bomberman ULTRA after setting `presentation = live`**: the `live\` folder is empty or

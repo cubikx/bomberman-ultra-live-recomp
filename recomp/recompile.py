@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Recompile a decrypted PS3 EBOOT.elf into C++ sources for the runtime.
 
-usage: python -I recompile.py <EBOOT.elf> <out dir> [--rpcs3 <checkout>] [--ppufunc <PPUFunction.cpp>]
+usage: python -I recompile.py <EBOOT.elf> <out dir>
 
 The game image itself is NOT embedded in the output: the runtime loads the
 segments from the user's own EBOOT.elf at startup.
@@ -140,23 +140,24 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("elf")
     ap.add_argument("out")
-    ap.add_argument("--rpcs3", default=str(Path(__file__).parent.parent / "tools/ref/rpcs3"))
-    ap.add_argument("--ppufunc", default=str(Path(__file__).parent.parent / "tools/ref/PPUFunction.cpp"))
     args = ap.parse_args()
 
     data = Path(args.elf).read_bytes()
     elf = Elf(data)
     prog = analyze.analyze(elf)
-    by_mod, anymod = nids.load(Path(args.rpcs3), Path(args.ppufunc))
+    names = nids.load()
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
 
     # imports: one table entry per stub, in address order
     stubs = sorted(prog.stubs.items())
+    unknown = [f"{mod}::{n:08X}" for _, (mod, n) in stubs if (mod, n) not in names]
+    if unknown:
+        sys.exit(f"{len(unknown)} unknown system functions (first: {unknown[0]}): "
+                 "this does not look like version 01.04 of the game.")
     imports = []
     for i, (addr, (mod, n)) in enumerate(stubs):
-        name = by_mod.get((mod, n)) or anymod.get(n) or f"_nid_{n:08X}"
-        imports.append((addr, mod, name, n))
+        imports.append((addr, mod, names[(mod, n)], n))
 
     stats = collections.Counter()
     bodies = []
