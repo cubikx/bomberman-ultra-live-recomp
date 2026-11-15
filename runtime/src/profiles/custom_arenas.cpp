@@ -20,6 +20,8 @@
 #include "profiles/custom_arenas.h"
 #include "runtime/kernel.h"
 
+bool media_has_save_screen();   // hle/media_patch.cpp
+
 using custom_arenas::SLOTS;
 using custom_arenas::Slot;
 
@@ -225,9 +227,15 @@ void hook_unpack_powerups(PPUContext& ctx, PPUFunc original) {
 }
 
 // The PS3 Power-Up Settings init hides (sub_0012D5C0) and disables (sub_0012DC58) the
-// Save Settings button; both get `true` instead.
+// Save Settings button; both get `true` instead when live/ has the save scene (made from
+// the 360 copy by tools/media/make_live.py), else the button stays cut.
 void hook_show_save_button(PPUContext& ctx, PPUFunc original) {
-	ctx.r[4] = 1;
+	static bool shown = [] {
+		bool has = media_has_save_screen();
+		if (!has) LOG_INFO("custom arenas: no live/SaveMatchScreen.xui (tools/media/make_live.py), Save Settings hidden");
+		return has;
+	}();
+	if (shown) ctx.r[4] = 1;
 	original(ctx);
 }
 
@@ -236,6 +244,7 @@ void hook_show_save_button(PPUContext& ctx, PPUFunc original) {
 // screen the PS3 port cut, put back by save_match_screen.cpp). What it will save is
 // taken now, while the Power-Up screen's own copy of the switches is still there.
 void hook_save_settings(PPUContext& ctx, PPUFunc original) {
+	if (!media_has_save_screen()) return;   // no scene to open (the button is hidden then)
 	u32 screen = u32(ctx.r[3]);
 	u32 own = ld8(screen + 552) ? screen + 276 : 0;   // power-up switches not yet in the match
 	u64 r3 = ctx.r[3];

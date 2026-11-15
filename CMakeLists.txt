@@ -84,27 +84,8 @@ else()
 	set(OUR_FLAGS -msse4.1 -Wno-unused-label -g)
 endif()
 
-# Files the runtime adds to the game's media.zip (runtime/src/hle/media_patch.cpp), e.g. the
-# Save Custom Settings scene the PS3 port left out; embedded so the executable needs no extra files.
-file(GLOB MEDIA_PATCH_FILES CONFIGURE_DEPENDS runtime/data/*)
-set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${MEDIA_PATCH_FILES})
-set(MEDIA_PATCH_CPP "// generated from runtime/data/\n#include <cstddef>\nstruct MediaPatchFile { const char* name; const unsigned char* data; size_t size; };\n")
-set(MEDIA_PATCH_TABLE "")
-set(MEDIA_PATCH_INDEX 0)
-foreach(f ${MEDIA_PATCH_FILES})
-	get_filename_component(name ${f} NAME)
-	file(READ ${f} hex HEX)
-	string(REGEX REPLACE "([0-9a-f][0-9a-f])" "0x\\1," bytes "${hex}")
-	string(APPEND MEDIA_PATCH_CPP "static const unsigned char file${MEDIA_PATCH_INDEX}[] = {${bytes}};\n")
-	string(APPEND MEDIA_PATCH_TABLE "\t{\"${name}\", file${MEDIA_PATCH_INDEX}, sizeof(file${MEDIA_PATCH_INDEX})},\n")
-	math(EXPR MEDIA_PATCH_INDEX "${MEDIA_PATCH_INDEX} + 1")
-endforeach()
-string(APPEND MEDIA_PATCH_CPP "extern const MediaPatchFile g_media_patch_files[] = {\n${MEDIA_PATCH_TABLE}};\n"
-	"extern const size_t g_media_patch_count = ${MEDIA_PATCH_INDEX};\n")
-file(WRITE ${CMAKE_BINARY_DIR}/media_patch_files.cpp "${MEDIA_PATCH_CPP}")
-
 file(GLOB RUNTIME_SOURCES CONFIGURE_DEPENDS runtime/src/*.cpp runtime/src/*/*.cpp)
-add_library(ps3runtime OBJECT ${RUNTIME_SOURCES} ${CMAKE_BINARY_DIR}/media_patch_files.cpp)
+add_library(ps3runtime OBJECT ${RUNTIME_SOURCES})
 target_include_directories(ps3runtime PUBLIC runtime/include runtime/src)
 target_include_directories(ps3runtime PRIVATE ${stb_SOURCE_DIR})
 target_compile_options(ps3runtime PRIVATE ${OUR_FLAGS})

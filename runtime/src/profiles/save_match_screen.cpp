@@ -2,8 +2,9 @@
 // PS3 port cut: Power-Up Settings -> Save Settings opens it; 3 slots, each "Custom
 // Setting N" with its arena's picture or "Open Slot"; A saves into the focused slot
 // (asking first when it is used), Y deletes it (asking first), B goes back. The scene
-// is runtime/data/SaveMatchScreen.xui (added to media.zip by media_patch.cpp); the
-// class is native code registered with the game's XUI next to its own screen classes.
+// is live/SaveMatchScreen.xui (made from the 360 copy by tools/media/make_live.py, added
+// to media.zip by media_patch.cpp); the class is native code registered with the game's
+// XUI next to its own screen classes.
 #include <format>
 #include <string>
 

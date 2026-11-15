@@ -1,11 +1,10 @@
-// The game's media.zip with the runtime's own files added: the files in runtime/data/
-// (embedded at build, see CMakeLists.txt), e.g. the Save Custom Settings scene the PS3
-// port left out, and with `presentation = live` the files in live/ (Bomberman LIVE
-// textures and strings made by tools/media/make_live.py). The game reads its menus,
-// textures and strings only from media.zip, so it gets a copy with those files appended
-// as stored (uncompressed) entries; a file with the name of an original entry replaces
-// it in the central directory. Made once in user/cache/ and remade when the original,
-// the setting or the added files change.
+// The game's media.zip with files from live/ added (made from the user's Xbox 360 copy by
+// tools/media/make_live.py): always the Save Custom Settings scene the PS3 port left out,
+// and with `presentation = live` the rest (Bomberman LIVE textures and strings). The game
+// reads its menus, textures and strings only from media.zip, so it gets a copy with those
+// files appended as stored (uncompressed) entries; a file with the name of an original
+// entry replaces it in the central directory. Made once in user/cache/ and remade when
+// the original, the setting or the added files change.
 #include <algorithm>
 #include <cstring>
 #include <filesystem>
@@ -18,17 +17,11 @@
 #include "config/config.h"
 #include "runtime/kernel.h"
 
-struct MediaPatchFile {
-	const char* name;
-	const unsigned char* data;
-	size_t size;
-};
-extern const MediaPatchFile g_media_patch_files[];
-extern const size_t g_media_patch_count;
-
 namespace fs = std::filesystem;
 
 namespace {
+
+constexpr const char* SAVE_SCREEN = "SaveMatchScreen.xui";
 
 struct PatchFile {
 	std::string name, data;
@@ -58,24 +51,21 @@ void put32(std::string& s, u32 v) {
 u32 get16(const std::string& s, size_t o) { return u8(s[o]) | u32(u8(s[o + 1])) << 8; }
 u32 get32(const std::string& s, size_t o) { return get16(s, o) | get16(s, o + 2) << 16; }
 
-// The embedded files, then (presentation = live) every file in live/, replacing an
-// embedded one of the same name.
+// The save scene from live/, and with presentation = live every other file there.
 std::vector<PatchFile> patch_files() {
 	std::vector<PatchFile> files;
-	for (size_t i = 0; i < g_media_patch_count; i++)
-		files.push_back({g_media_patch_files[i].name,
-		                 std::string(reinterpret_cast<const char*>(g_media_patch_files[i].data), g_media_patch_files[i].size)});
-	if (config::get().presentation != config::Presentation::Live) return files;
+	bool all = config::get().presentation == config::Presentation::Live;
 	std::error_code ec;
 	size_t live = 0;
 	for (const auto& e : fs::directory_iterator(g_paths.live, ec)) {
 		if (!e.is_regular_file() || e.path().extension() == ".patch") continue;   // see usrdir_patched_file
+		std::string name = e.path().filename().string();
+		if (name != SAVE_SCREEN && !all) continue;
 		std::ifstream in(e.path(), std::ios::binary);
-		PatchFile f{e.path().filename().string(), std::string(std::istreambuf_iterator<char>(in), {})};
-		std::erase_if(files, [&](const PatchFile& o) { return o.name == f.name; });
-		files.push_back(std::move(f));
-		live++;
+		files.push_back({name, std::string(std::istreambuf_iterator<char>(in), {})});
+		if (name != SAVE_SCREEN) live++;
 	}
+	if (!all) return files;
 	if (!live)
 		LOG_WARN("media: presentation = live, but %s has no files (make them with tools/media/make_live.py); "
 		         "showing Bomberman ULTRA", g_paths.live.string().c_str());
@@ -184,6 +174,12 @@ bool build(const fs::path& original, const fs::path& out, const std::vector<Patc
 }
 
 } // namespace
+
+// Whether live/ has the Save Custom Settings scene (without it the screen stays cut).
+bool media_has_save_screen() {
+	std::error_code ec;
+	return fs::is_regular_file(g_paths.live / SAVE_SCREEN, ec);
+}
 
 // The media.zip the game should read: `original` with the runtime's files added.
 fs::path media_patched_zip(const fs::path& original) {

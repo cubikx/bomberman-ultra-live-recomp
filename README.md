@@ -39,7 +39,7 @@ The switches named below are in `user\settings\settings.ini`.
 
 **Xbox 360 Features**
 - Custom Arenas, restored from the Xbox 360 version: save up to 3 setups of arena, rules and
-  power-ups, then pick them at Arena Select.
+  power-ups, then pick them at Arena Select. (Requires XBOX 360 game files)
 - An optional Bomberman LIVE look, using your own Xbox 360 copy: its logo, title screen, voice,
   A/B/X/Y prompts and wording (`presentation`). (Requires XBOX 360 game files)
 
@@ -256,6 +256,10 @@ copy, the port can look and sound like the 360 version: its logo and title scree
 game content (14 arenas, all modes and costumes, up to 7 players on one PC) stays that of the
 PS3 version.
 
+The same steps also give you Custom Arenas: the Save Custom Settings screen (Power-Up
+Settings, then Save Settings) is made from your 360 copy too. It works with either look, and
+without it the Save Settings button stays hidden as on the PS3.
+
 ### Step A: Put the Xbox 360 game files in `xbox360\`
 
 1. From your 360 copy, take `default.xex` and the `newmedia` folder. Extract them if they are
@@ -286,8 +290,8 @@ decodes it. Download `vgmstream-win64.zip` and extract it to `tools\ref\vgmstrea
 python -I tools/media/make_live.py
 ```
 
-This converts the 360 files and writes 22 files to `live\` (pictures, text in 7 languages,
-and the voice). It does not change your game files. If `live\` is ever lost, run the command
+This converts the 360 files and writes 23 files to `live\` (pictures, text in 7 languages,
+the Save Custom Settings screen and the voice). It does not change your game files. If `live\` is ever lost, run the command
 again: it makes exactly the same files from the originals.
 
 Options, if your files are elsewhere: `python -I tools/media/make_live.py <360 folder>
@@ -302,7 +306,8 @@ In `user\settings\settings.ini`, set:
 presentation = live
 ```
 
-Start the game. Set it back to `ultra` for the PS3 look. The first start after switching
+Start the game. Set it back to `ultra` for the PS3 look; Custom Arenas stay available with
+either setting. The first start after switching
 takes a few seconds longer while the game rebuilds its files in `user\cache\`.
 
 ---

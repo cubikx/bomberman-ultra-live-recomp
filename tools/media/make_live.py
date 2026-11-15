@@ -35,11 +35,17 @@ import zipfile
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import pstex
 import vag
+import xur
 
 # Bman.bnk (Sony BNK v3): data section offset at file 0x10. Wave entry of bombermanLive
 # (stream 8): u32 data offset at 0xBE0, u32 size at 0xBE4, 44050 Hz mono PS-ADPCM.
 BANK_DATA_AT, VOICE_ENTRY, VOICE_OFFSET, VOICE_SIZE, VOICE_RATE = 0x10, 0xBE0, 0x23CA0, 0xBD10, 44050
 XWB_VOICE = 72   # music.xwb stream (1-based) named bombermanLive
+
+# The Save Custom Settings scene the PS3 port left out, from the XUIZ in default_dec.xex.
+# Used with either presentation (runtime/src/hle/media_patch.cpp).
+SAVE_SCREEN = 'SaveMatchScreen.xui'
+SAVE_SCREEN_XUR = 'resource/scenes/SaveMatchScreen.xur'
 
 # PS3 texture name -> path in the 360 packages ('xex:' = the XUIZ in default_dec.xex)
 TEXTURES = {
@@ -149,10 +155,44 @@ def main():
 		open(os.path.join(out, f'strings_{lang}.xus'), 'wb').write(pstex.write_xus(table))
 		print(f'strings_{lang}.xus  {taken} from the 360, {renamed} renamed')
 
+	open(os.path.join(out, SAVE_SCREEN), 'wb').write(save_screen(pkgs['xex'][SAVE_SCREEN_XUR]))
+	print(f'{SAVE_SCREEN}  from the 360 scene, laid out for the PS3 menus')
+
 	if vgm:
 		voice(src, out, os.path.join(ps3, 'USRDIR', 'Bman.bnk'), vgm)
 	else:
 		print('voice skipped (--no-voice)')
+
+
+def save_screen(data):
+	# The 360's Save Custom Settings scene as text, with the PS3 port's layout: slots in
+	# order 1-3, PS3-sized buttons, an arena picture in each frame, English placeholders
+	# (save_match_screen.cpp fills in the real text).
+	root = xur.read(data)
+	scene = root.children[0]
+	items = {e.get('Id'): e for e in scene.walk()}
+	scene.set('Text', xur.S, 'Save Custom Settings')
+	slots = []
+	for n, y in ((1, 114.0), (2, 238.0), (3, 368.0)):
+		button, arena, frame = items[f'btnSlot{n}'], items[f'ArenaImage{n}'], items[f'XuiImage{n}']
+		button.set('Width', xur.F, 380.0)
+		button.set('Height', xur.F, 35.0)
+		button.set('Position', xur.V, (300.0, y, 0.0))
+		button.set('Visual', xur.S, 'XuiButton')
+		button.set('Text', xur.S, 'Open Slot')
+		button.drop('PressKey')
+		arena.set('Width', xur.F, 125.0)
+		arena.set('Position', xur.V, (699.0, y + 19, 0.0))
+		arena.set('ImagePath', xur.S, '..\\arena_thumbs\\Classic.png')
+		arena.drop('Pivot')
+		frame.set('Height', xur.F, 95.0)
+		frame.set('SizeMode', xur.I, 8)
+		frame.drop('Pivot')
+		slots += [items[f'imgLine{n}'], button, arena, frame]
+	scene.children = slots + [e for e in scene.children if e not in slots]
+	for e in root.walk():
+		xur.tidy(e)
+	return xur.write(root)
 
 
 def read_wav(path):

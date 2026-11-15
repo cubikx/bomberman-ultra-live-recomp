@@ -9,6 +9,10 @@ were committed.
 - Computer players (`cpu_ai = smart`) no longer go after the costume pickup, the wardrobe icon that
   unlocks a costume piece. They walk around it at every difficulty, so it stays for the people
   playing, and only step on it when that's the one way out of a blast.
+- Custom Arenas now need your own Xbox 360 copy: `tools/media/make_live.py` makes the Save
+  Custom Settings screen in `live\` along with the Bomberman LIVE files, and it works with either
+  `presentation`. Without it, Save Settings stays hidden as on the PS3. If you already have
+  `live\`, run `make_live.py` once more to add the screen.
 
 ## 2026-11-01
 
