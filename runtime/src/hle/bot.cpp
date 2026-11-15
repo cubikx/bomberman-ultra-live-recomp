@@ -152,7 +152,7 @@ struct Bot {
 		int escapes = 0, wrong_way = 0, froze = 0;
 	} stats;   // this round, for the console
 	int max_bombs = 99;       // bombs it keeps down at once, whatever it could
-	bool walks_over_bad = false;   // does not steer round skulls and power-downs
+	bool walks_over_bad = false;   // does not steer round skulls and power-downs (still round the wardrobe)
 	u32 dice = 1;             // for the above
 	struct Noticed {
 		u32 obj;
@@ -407,6 +407,16 @@ bool walkable(const World& w, int i) { return w.tile[i] == OPEN && !w.bomb[i] &&
 
 bool bad_item(int type) { return (type >= 14 && type <= 16) || (type >= 18 && type <= 23); }
 
+// The wardrobe pickup unlocks a costume part for the profile that takes it; a bot gains
+// nothing from it, and one taking it costs the people playing the unlock. Bots leave it be
+// and steer round it, and step on it only to get out of a blast.
+constexpr int WARDROBE = 17;
+
+// Item tiles a search will not walk onto.
+enum class Avoid { Nothing, Wardrobe, AllBad };
+
+bool avoided(int type, Avoid a) { return type == WARDROBE ? a != Avoid::Nothing : a == Avoid::AllBad && bad_item(type); }
+
 int g_me = -1;   // the bot planning now: its own remote bombs go off when it says so
 
 bool own_remote(const Window& win) { return win.soft && win.owner == g_me; }
@@ -444,7 +454,7 @@ struct Search {
 // caught by fire, reaching step k at k / speed ticks. `extra` adds a blast (a bomb the
 // bot considers placing) over `extra_tiles`, `extra` ticks from now.
 void search(const World& w, int start, float speed, int margin, Search& s, const std::vector<int>* extra_tiles = nullptr,
-            Window extra = {}, bool avoid_bad = true) {
+            Window extra = {}, Avoid avoid = Avoid::AllBad) {
 	s.dist.fill(-1);
 	s.parent.fill(-1);
 	s.dist[start] = 0;
@@ -458,7 +468,7 @@ void search(const World& w, int start, float speed, int margin, Search& s, const
 			int x = cx + DX[d], z = cz + DZ[d];
 			if (x < 0 || x >= W || z < 0 || z >= H) continue;
 			int n = idx(x, z);
-			if (s.dist[n] >= 0 || !walkable(w, n) || (avoid_bad && bad_item(w.item_type[n]))) continue;
+			if (s.dist[n] >= 0 || !walkable(w, n) || avoided(w.item_type[n], avoid)) continue;
 			// on a tile from starting to enter it until fully off it
 			float arrive = float(s.dist[c] + 1) * step;
 			if (!clear(w.danger[n], arrive - step, arrive + step, margin)) continue;
@@ -504,7 +514,6 @@ float item_value(const Bot& b, int type) {
 	case 3: return 16.0f;                             // remote
 	case 6: case 7: case 12: return 14.0f;            // punch / glove / line bomb
 	case 13: return 8.0f;                             // land mine
-	case 17: return 20.0f;                            // wardrobe (a costume part)
 	default: return 0;
 	}
 }
@@ -531,7 +540,7 @@ void plan(Bot& b, const World& w, const Player& me) {
 	} restore{b, measured};
 	int margin = b.margin;
 	Search s;
-	search(w, here, b.speed, margin, s, nullptr, {}, !b.walks_over_bad);
+	search(w, here, b.speed, margin, s, nullptr, {}, b.walks_over_bad ? Avoid::Wardrobe : Avoid::AllBad);
 	int keep = b.goal;
 	b.bomb_at_goal = false;
 	b.goal = -1;
@@ -629,7 +638,7 @@ void plan(Bot& b, const World& w, const Player& me) {
 			b.path = path_to(s, best);
 		} else {   // no clean way out in time: the nearest tile that never burns
 			Search loose;
-			search(w, here, b.speed, -1000, loose, nullptr, {}, false);
+			search(w, here, b.speed, -1000, loose, nullptr, {}, Avoid::Nothing);
 			for (int i = 0; i < N; i++)
 				if (loose.dist[i] >= 0 && no_danger(w.danger[i]) && (best < 0 || loose.dist[i] < loose.dist[best])) best = i;
 			if (best < 0) {   // fire everywhere it can go: the tile that burns last
@@ -726,10 +735,17 @@ void plan(Bot& b, const World& w, const Player& me) {
 		}
 	}
 
-	// walled in (power-downs count as walls until then): through a power-down after all
-	int room = 0;
-	for (int i = 0; i < N; i++) room += s.dist[i] >= 0;
-	if (best < 0 && room <= 8) search(w, here, b.speed, margin, s, nullptr, {}, false);
+	// walled in (power-downs count as walls until then): through a power-down after all, and
+	// through the wardrobe pickup only when that still leaves it boxed in
+	auto room = [&] {
+		int n = 0;
+		for (int i = 0; i < N; i++) n += s.dist[i] >= 0;
+		return n;
+	};
+	if (best < 0 && room() <= 8) {
+		search(w, here, b.speed, margin, s, nullptr, {}, Avoid::Wardrobe);
+		if (room() <= 8) search(w, here, b.speed, margin, s, nullptr, {}, Avoid::Nothing);
+	}
 
 	// nothing worth doing nearby: a few tiles from one of the nearest players (not on top
 	// of them, and not all bots after the same one)

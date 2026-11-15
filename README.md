@@ -34,6 +34,7 @@ The switches named below are in `user\settings\settings.ini`.
 - More realistic / human-like play. CPU players no longer bumble around aimlessly.
 - Easy, Normal and Hard adjusts their awareness and aggression. They will make mistakes based on 
   their difficulty level as well.
+- They leave the costume pickup for the people playing.
 - Don't like it? Set `cpu_ai = original` for the game's original CPU players.
 
 **Xbox 360 Features**

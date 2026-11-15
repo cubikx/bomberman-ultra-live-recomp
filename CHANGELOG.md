@@ -3,6 +3,13 @@
 Changes that matter to people building or playing the port, newest first, grouped by the date they
 were committed.
 
+## 2026-11-15
+
+### Changed
+- Computer players (`cpu_ai = smart`) no longer go after the costume pickup, the wardrobe icon that
+  unlocks a costume piece. They walk around it at every difficulty, so it stays for the people
+  playing, and only step on it when that's the one way out of a blast.
+
 ## 2026-11-01
 
 ### Added
